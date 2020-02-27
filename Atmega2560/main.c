@@ -8,12 +8,14 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#define LED_ON(port, pin) (port) |= (1 << (pin))
-#define LED_OFF(port, pin) (port) &= ~(1 << (pin))
-#define READ_PINL(pin) (1 << (pin))&PINL
+#define LED_ON(port, pin) ((port) |= (1 << (pin)))
+#define LED_OFF(port, pin) ((port) &= ~(1 << (pin)))
+#define READ_PINL(pin) ((1 << (pin))&PINL)
+#define BAUD 9600
+#define UBRR_CALC (F_CPU/(BAUD*16L) - 1)
 #define DELAY_LED_MS 550
-#define ALGORITHM_5 0x0A
-#define ALGORITHM_8 0x0B
+#define ALGORITHM_5 0x5
+#define ALGORITHM_8 0x8
 
 void algorithm_5();
 void algorithm_8();
@@ -28,8 +30,8 @@ void SetupUSART0()
 	//8 bit, no parity, 1 stop bit:
 	UCSR0C = (1 << UCSZ01)|(1 << UCSZ00);
 	//speed : 9600 bps:
-	UBRR0H = 0;
-	UBRR0L = 103;	 
+	UBRR0H = (uint8_t)(UBRR_CALC >> 8);
+	UBRR0L = (uint8_t)(UBRR_CALC);	 
 }
 
 ISR(USART0_RX_vect)
